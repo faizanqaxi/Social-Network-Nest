@@ -7,10 +7,14 @@ import { Model } from 'mongoose';
 import { User } from '../interfaces/user.interface';
 import { SignUpDto } from 'src/dto/signup.dto';
 import { LoginDto } from 'src/dto/login.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel('User') private readonly Users: Model<User>) {}
+  constructor(
+    @InjectModel('User') private readonly Users: Model<User>,
+    private readonly configService: ConfigService,
+  ) {}
 
   // To signup a user
   async signup(signUpDto: SignUpDto): Promise<any> {
@@ -36,8 +40,8 @@ export class AuthService {
       });
 
       const token = jwt.sign(
-        { id: user._id.toString() },
-        process.env.JWT_SECRET,
+        { id: newUser._id, userType: 'user' },
+        process.env.SECRET_OR_PRIVATE_KEY,
         { expiresIn: '24h' },
       );
       return {
